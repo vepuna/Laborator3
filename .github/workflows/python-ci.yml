@@ -2,15 +2,16 @@ name: Python CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: ["**"]
   pull_request:
-    branches: [ "**" ]
+    branches: ["**"]
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
 
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: ["3.8", "3.9", "3.10"]
@@ -19,7 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -37,12 +38,11 @@ jobs:
       - name: Run script.py
         run: python script.py
 
-      - name: Run tests with pytest and save to result.log
+      - name: Run tests with pytest
         run: |
-          pytest test_eg.py -v 2>&1 | tee result.log
-        shell: bash
+          pytest test_eg.py -v > result.log
 
-      - name: Upload result.log as build artifact
+      - name: Upload test results
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.os }}-py${{ matrix.python-version }}
